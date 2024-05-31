@@ -47,5 +47,38 @@ jobs:
           push: true # optional, default is false
           # List of tags
           tags: ${{secrets.ACR_NAME}}/contoso-website:latest # optional
+  deploy:
+    runs-on: ubuntu-20.04
+    needs: build_push_image
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v2
+              
+      - name: Helm tool installer
+        uses: Azure/setup-helm@v3
+        with:
+          # Version of helm
+          version: v3.3.1 # default is latest
+          
+      - name: Sign in to Azure with OIDC
+        uses: Azure/login@v1.5.1
+        with:
+          # ClientId of the Azure Service principal created.
+          client-id: ${{ secrets.AZURE_CLIENT_ID }} # optional
+          # TenantId of the Azure Service principal created.
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }} # optional
+          # Azure subscriptionId
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} # optional
+      - name: Azure Kubernetes Set Context
+        uses: Azure/k8s-set-context@v3.0
+        with:
+          # Azure resource group name
+          resource-group: ${{ secrets.RESOURCE_GROUP }} # optional
+          # Azure connected cluster name
+          cluster-name: ${{ secrets.CLUSTER_NAME }} # optional
+          
                 
-                
+                            
